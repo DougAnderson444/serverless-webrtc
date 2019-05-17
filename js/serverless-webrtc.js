@@ -5,7 +5,7 @@
     https://webrtc-demos.appspot.com/html/pc1.html
 */
 
-var cfg = {'iceServers': [{'url': 'stun:23.21.150.121'}]},
+var cfg = {'iceServers': [{'url': 'stun:stun.l.google.com:19302'}]},
   con = { 'optional': [{'DtlsSrtpKeyAgreement': true}] }
 
 /* THIS IS ALICE, THE CALLER/SENDER */
@@ -40,7 +40,7 @@ $('#createBtn').click(function () {
 $('#joinBtn').click(function () {
   navigator.getUserMedia = navigator.getUserMedia ||
                            navigator.webkitGetUserMedia ||
-                           navigator.mozGetUserMedia ||
+                           navigator.mediaDevices.getUserMedia ||
                            navigator.msGetUserMedia
   navigator.getUserMedia({video: true, audio: true}, function (stream) {
     var video = document.getElementById('localVideo')
@@ -153,10 +153,10 @@ function setupDC1 () {
 }
 
 function createLocalOffer () {
-  console.log('video1')
+  console.log('Creating the offer')
   navigator.getUserMedia = navigator.getUserMedia ||
                            navigator.webkitGetUserMedia ||
-                           navigator.mozGetUserMedia ||
+                           navigator.mediaDevices.getUserMedia ||
                            navigator.msGetUserMedia
   navigator.getUserMedia({video: true, audio: true}, function (stream) {
     var video = document.getElementById('localVideo')

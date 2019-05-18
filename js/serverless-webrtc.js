@@ -10,7 +10,7 @@ var cfg = {'iceServers': [{'url': 'stun:stun.l.google.com:19302'}]},
 
 /* THIS IS ALICE, THE CALLER/SENDER */
 
-var pc1 = new RTCPeerConnection(cfg, con),
+var localConnection = new RTCPeerConnection(cfg, con),
   dc1 = null, tn1 = null
 
 // Since the same JS file contains code for both sides of the connection,
@@ -119,7 +119,7 @@ function sendMessage () {
 function setupDC1 () {
   try {
     var fileReceiver1 = new FileReceiver()
-    dc1 = pc1.createDataChannel('test', {reliable: true})
+    dc1 = localConnection.createDataChannel('test', {reliable: true})
     activedc = dc1
     console.log('Created datachannel (pc1)')
     dc1.onopen = function (e) {
@@ -162,12 +162,12 @@ function createLocalOffer () {
     var video = document.getElementById('localVideo')
     video.src = window.URL.createObjectURL(stream)
     video.play()
-    pc1.addStream(stream)
+    localConnection.addStream(stream)
     console.log(stream)
     console.log('adding stream to pc1')
     setupDC1()
-    pc1.createOffer(function (desc) {
-      pc1.setLocalDescription(desc, function () {}, function () {})
+    localConnection.createOffer(function (desc) {
+      localConnection.setLocalDescription(desc, function () {}, function () {})
       console.log('created local offer', desc)
     },
     function () { console.warn("Couldn't create offer") },
@@ -177,10 +177,10 @@ function createLocalOffer () {
   })
 }
 
-pc1.onicecandidate = function (e) {
+localConnection.onicecandidate = function (e) {
   console.log('ICE candidate (pc1)', e)
   if (e.candidate == null) {
-    $('#localOffer').html(JSON.stringify(pc1.localDescription))
+    $('#localOffer').html(JSON.stringify(localConnection.localDescription))
   }
 }
 
@@ -191,7 +191,7 @@ function handleOnaddstream (e) {
   attachMediaStream(el, e.stream)
 }
 
-pc1.onaddstream = handleOnaddstream
+localConnection.onaddstream = handleOnaddstream
 
 function handleOnconnection () {
   console.log('Datachannel connected')
@@ -205,7 +205,7 @@ function handleOnconnection () {
   $('#messageTextBox').focus()
 }
 
-pc1.onconnection = handleOnconnection
+localConnection.onconnection = handleOnconnection
 
 function onsignalingstatechange (state) {
   console.info('signaling state change:', state)
@@ -219,18 +219,18 @@ function onicegatheringstatechange (state) {
   console.info('ice gathering state change:', state)
 }
 
-pc1.onsignalingstatechange = onsignalingstatechange
-pc1.oniceconnectionstatechange = oniceconnectionstatechange
-pc1.onicegatheringstatechange = onicegatheringstatechange
+localConnection.onsignalingstatechange = onsignalingstatechange
+localConnection.oniceconnectionstatechange = oniceconnectionstatechange
+localConnection.onicegatheringstatechange = onicegatheringstatechange
 
 function handleAnswerFromPC2 (answerDesc) {
   console.log('Received remote answer: ', answerDesc)
   writeToChatLog('Received remote answer', 'text-success')
-  pc1.setRemoteDescription(answerDesc)
+  localConnection.setRemoteDescription(answerDesc)
 }
 
 function handleCandidateFromPC2 (iceCandidate) {
-  pc1.addIceCandidate(iceCandidate)
+  localConnection.addIceCandidate(iceCandidate)
 }
 
 /* THIS IS BOB, THE ANSWERER/RECEIVER */
